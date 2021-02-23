@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: docker/app/Dockerfile
+    image: vepay-php
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html:rw
+      - ./docker/app/php-logs:/var/log/php/
+    ports:
+      - 80:80
+    networks:
+      symfony_redis_network:
+        ipv4_address: 172.18.0.11
+
+
+  redis:
+    image: redis:5-alpine
+    ports: [6379]
+    networks:
+      symfony_redis_network:
+        ipv4_address: 172.18.0.12
+
+networks:
+  symfony_redis_network:
+    name: symfony-redis-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
